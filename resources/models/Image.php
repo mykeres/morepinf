@@ -1,0 +1,169 @@
+<?php
+
+	class ImageTable extends DataBase{
+		function insert(Image $image){
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare("INSERT INTO `imagen` (`idimagen`,`fecha`, `localizacion`,`nombre`, `camara`, `idusuario`, `extension`) VALUES (?,?,?,?,?,?,?)");
+			$idImagen = $image->getIdImagen();
+			$fecha = $image->getFecha();
+			$localizacion = $image->getLocalizacion();
+			$nombre = $image->getNombre();
+			$camara = $image->getCamara();
+			$idUsuario = $image->getIdUsuario();
+			$extension = $image->getExtension();
+			$stmt->bind_param("sssssis", $idImagen, $fecha,
+				$localizacion, $nombre,
+				$camara, $idUsuario, $extension);
+			$stmt->execute();
+			//var_dump($stmt->execute());
+
+		}
+		
+		function getImagesFromUser(User $user, array $params= null):array{
+			if (!isset($params['count'])){
+				$params['count'] = 0;
+			}
+			if (!isset($params['page'])){
+				$params['page'] = 0;
+			}
+			$first = ($params['page'] * $params['count']);
+			$count = $params['count'];
+
+            $idusuario = $user->getIdUsuario();
+
+			$mysqli = $this->conn();
+            // LIMIT ? OFFSET ?
+        	$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE idusuario = ?');
+        	$stmt->bind_param("i", $idusuario);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            $images = [];
+            while (($obj = $result->fetch_array(MYSQLI_ASSOC)) !== null) {
+                $images[] = $this->__assign($obj);
+            }
+            return $images;
+		}
+		function __assign($array): Image{
+		    $image = new Image();
+		    $image->setIdImagen($array['idimagen']);
+		    $image->setNombre($array['nombre']);
+		    $image->setExtension($array['extension']);
+		    $image->setCamara($array['camara']);
+		    $image->setFecha($array['fecha']);
+		    $image->setLocalizacion($array['localizacion']);
+		    $image->setIdUsuario($array['idusuario']);
+		    return $image;
+		}
+		function countImages(User $user): int{
+		    $mysqli = $this->conn();
+	        $stmt = $mysqli->prepare('SELECT COUNT(*) FROM `imagen` WHERE `idusuario` = (SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1)');///
+	        $stmt->bind_param("s",$user->getNombre());
+	        $stmt->execute();
+	        $rows = $stmt->get_result();
+	        return $rows;//mirar
+    	}
+
+	}
+
+	class Image{
+
+		private $idImagen;
+		private $nombre;
+		private $extension;
+		private $camara;
+		private $fecha;
+		private $localizacion;
+		private $idUsuario;
+
+		function __construct(){
+
+		}
+		public function getIdImagen()
+		{
+		    return $this->idImagen;
+		}
+
+		public function setIdImagen($idImagen)
+		{
+		    $this->idImagen = $idImagen;
+		    return $this;
+		}
+
+	
+		public function getNombre()
+		{
+		    return $this->nombre;
+		}
+
+		
+		public function setNombre($nombre)
+		{
+		    $this->nombre = $nombre;
+		    return $this;
+		}
+
+		public function getExtension(){
+			return $this->extension;
+		}
+
+		public function setExtension($extension){
+			$this->extension = $extension;
+			return $this;
+		}
+
+	
+		public function getCamara()
+		{
+		    return $this->camara;
+		}
+
+	
+		public function setCamara($camara)
+		{
+		    $this->camara = $camara;
+		    return $this;
+		}
+
+	
+		public function getFecha()
+		{
+		    return $this->fecha;
+		}
+
+	
+		public function setFecha($fecha)
+		{
+		    $this->fecha = $fecha;
+		    return $this;
+		}
+
+		public function getLocalizacion()
+		{
+		    return $this->localizacion;
+		}
+
+		public function setLocalizacion($localizacion)
+		{
+		    $this->localizacion = $localizacion;
+		    return $this;
+		}
+
+
+		public function getIdUsuario()
+		{
+		    return $this->idUsuario;
+		}
+
+		public function setIdUsuario($idUsuario)
+		{
+		    $this->idUsuario = $idUsuario;
+		    return $this;
+		}	
+
+		function extractMetadata(){
+
+		}
+	
+    
+}
