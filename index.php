@@ -126,6 +126,27 @@
 			}
 			return $blob;
 		}
+
+		function _render_common_r($hash = '',$code = false){
+			if (!$hash && $code == 404) {header('HTTP/1.0 404 Not Found');return common_404();}
+			if (!$code) {$code = 302;}
+			if (substr($hash,0,4) == 'http') {header('Location: '.$hash,true,$code);exit;}
+			/* INI-Procesar parámetros GET pasados en $hash;
+			 * sobreescribiraán parámetros del mismo nombre que se hayan recibido por GET en la URL */
+			if (0 === strpos($hash, '?')) {
+				$hash = str_replace('?', '', $hash);
+				foreach (explode('&', $hash) as $get_param) {
+					list($index, $value) = explode('=', $get_param, 2);
+					$_GET[$index] = $value;
+				}
+			}
+			/* END-Procesar parámetros GET pasados en $hash */
+			$get_params = [];
+			foreach ($_GET as $index => $value) {$get_params[] = $index.'='.$value;}
+			//$uri_parts = explode('?', $_SERVER['REQUEST_URI'], 2);
+			header('Location: http://'.$_SERVER['SERVER_NAME'].$hash.($get_params ? '?'.implode('&', $get_params) : ''), true, $code);
+			exit;
+		}
 	}
 
 	class _controller{

@@ -1,14 +1,12 @@
-<h1>Welcome {{user.nombre}}</h1>
-<p>{{text}}</p>
-<p>{{text2.pos1}}</p>
-<a href="/panel">Panel</a>
+<article>
+	<aside>
+		
+	</aside>
+	<main>
+		<h1>Bienvenido <span>{{user.nombre}}</span></h1>
+		<p>Panel de usuario</p>
 
-{{#debo_pintar_mensaje}}
-<p>Debo pintar mensaje</p>
-{{/debo_pintar_mensaje}}
-
-{{^debo_pintar_mensaje}}
-<p>No Debo pintar mensaje</p>
-{{/debo_pintar_mensaje}}
-
-<?php echo $GLOBALS['lalala'];?>
+		<div><a href="/subir">Subir una nueva imagen.</a></div>
+		<div><a href="/galeria/{{user.idusuario}}">Consulta tu galería de fotos ().</a></div>
+	</main>
+</article>

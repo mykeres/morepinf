@@ -13,22 +13,21 @@ class UserTable extends DataBase{
 		if (empty($obj)) {
 			return null;
 		}
-        return $this->__assign($obj);
-		
-       
+        	return $this->__assign($obj);
 	}
 
-    public function getId(User $user){
-        $mysqli = $this->conn();
-        $stmt = $mysqli->prepare('SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1');
-        $stmt->bindParam("s",$user->getName());
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $obj = $result->fetch_array();
-        print_r($obj);
-        return $obj;
-    }
+	function getById(int $idusuario){
+		$mysqli = $this->conn();
+		$stmt = $mysqli->prepare('SELECT * FROM usuario WHERE usuario.idusuario=? LIMIT 1');
+		$stmt->bind_param("i",$idusuario);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$obj = $result->fetch_array();
+		if (empty($obj)) {
+			return null;
+		}
+        return $this->__assign($obj);
+	}
 
 	function getAllNames(): array{
 		$mysqli = $this->conn();
@@ -61,7 +60,9 @@ class UserTable extends DataBase{
 		$mysqli = $this->conn();
 		$stmt = $mysqli->prepare("INSERT INTO `usuario` (`nombre`, `password`,`email`) VALUES (?,?,?)");
         $hash = sha1($user->getPassword());
-		$stmt->bind_param("sss", $user->getNombre(), $hash , $user->getEmail());
+        $userNombre = $user->getNombre();
+        $userEmail = $user->getEmail();
+		$stmt->bind_param("sss", $userNombre, $hash , $userEmail);
 		$stmt->execute();
 
 		//FIXME: comprobar
@@ -111,7 +112,7 @@ class User{
 		return $this->email;
 	}
 
-    public function setIdusuario($idusuario){
+    public function setIdUsuario($idusuario){
         $this->idusuario = $idusuario;
     }
 	public function setNombre($nombre){
@@ -127,69 +128,12 @@ class User{
     public function setEmail($email){
         $this->email = $email;
     }
+
+	public function toArray(){
+		return [
+			'idusuario'=>$this->idusuario,
+			'nombre'=>$this->nombre
+		];
+	}
 }
 
-class UserOld extends DataBase{
-/*
-    private $nombre;
-    private $password;
-    private $email;
-
-    public function __construct($nombre){
-        parent::__construct();
-        $this->nombre = $nombre;
-    }
-
-    public function getNombre(){
-        return $this->nombre;
-    }
-
-    public function setNombre($nombre){
-        $this->nombre = $nombre;
-    }
-
-    public function setPassword($password){
-        $this->password = $password;
-    }
-
-    public function setEmail($email){
-        $this->email = $email;
-    }
-
-  */  
-
-    /*public function insertUser(): User{
-        $hash = password_hash($this->password, PASSWORD_BCRYPT);
-        $query = $this->conectar()->prepare('INSERT INTO `usuario` (`nombre`, `password`,`email`) VALUES (?,?,?)');
-        $query->bindParam(1,$this->nombre,PDO::PARAM_STR);
-        $query->bindParam(2,$hash,PDO::PARAM_STR);
-        $query->bindParam(3,$this->email,PDO::PARAM_STR);
-
-        $query->execute();
-        return $this;
-        //$query->execute([$nombre,  $hash]);
-    }*/
-
-    /*public function deleteUser(){
-        $query = $this->conectar()->prepare('DELETE FROM `usuario` WHERE `nombre`= :nombre');
-        $query->bindParam(':nombre',$this->nombre,PDO::PARAM_STR);
-        $query->execute();
-    }*/
-    
-    
-
-    
-    /*$mysqli = $this->conn();
-	$stmt = $mysqli->prepare("SELECT usuario.password FROM usuario WHERE usuario.nombre=? LIMIT 1");
-	$stmt->bind_param("s", $this->nombre);
-
-	$stmt->execute();
-	$result = $stmt->get_result();
-
-	$obj = $result->fetch_array();
-    */
-
-    
-
-    
-}

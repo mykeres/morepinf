@@ -1,8 +1,113 @@
 <?php
-	class _controller_index extends _controller{
+	class _controller_index extends _controller  {
 		function main(...$params){
+			if (!_app::isLogged()) {
+				$this->_render_common_r('/login');
+			}
+
 			$this->_render('main');
 		}
+		function welcome(){
+			if (!_app::isLogged()) {
+				$this->_render_common_r('/login');
+			}
+
+			$user = _app::getUser();
+			$this->output['user'] = $user->toArray();
+
+			$this->_render('welcome');
+		}
+		function galeria($id = ''){
+			if (empty($id)) {
+				echo 'no puedo pintar nada';
+				exit;
+			}
+
+			$UserTable = new UserTable();
+			$user = $UserTable->getById(intval($id));
+			if ($user === null) {
+				echo 'el usuario no existe';
+				exit;
+			}
+
+			$ImageTable = new ImageTable();
+			$images = $ImageTable->getImagesFromUser($user);
+
+			$arrimages = [];
+			foreach ($images as $image) {
+				$img = $image->toArray();
+				$img['idusuario'] = $user->getIdUsuario();
+				$arrimages[] = $img;
+			}
+
+			$this->output['images'] = $arrimages;
+
+			$this->_render('galeria');
+		}
+
+
+		function imagen($id = '',$img = ''){
+			if (empty($id)) {
+				echo 'no puedo pintar nada';
+				exit;
+			}
+
+			$UserTable = new UserTable();
+			$user = $UserTable->getById(intval($id));
+			if ($user === null) {
+				echo 'el usuario no existe';
+				exit;
+			}
+
+			$ImageTable = new ImageTable();
+			$image = $ImageTable->getById($img);
+			if ($image === null) {
+				echo 'la imagen no existe';
+				exit;
+			}
+
+			$this->output['user'] = $user->toArray();
+			$this->output['image'] = $image->toArray();
+
+			$this->output['link_return'] = '/galeria/'.$user->getIdUsuario();
+			
+			$TagTable = new TagTable();
+			$tags = $TagTable->getTagsFromImage($image);
+			$nameTags=[];
+			foreach ($tags as $tag) {
+				$tagArray = $tag->toArray();
+				$nameTags[]= $tagArray;
+			}
+			$this->output['tags'] = $nameTags;
+
+			if(!empty($_POST)){
+
+				$nombre = $_POST['nombre'];
+				$tipo = $_POST['tipo'];
+				if (!in_array($tipo,Tag::$tipos)){
+					echo "intruso";
+					//eliminar cookie y echarlo a registro
+					exit;
+				}
+				if ($TagTable->existTag($tags)){
+					$TagTable->insertTagImage();
+				}
+			}
+
+			if (_app::isLogged()) {
+				$logged_user = _app::getUser();
+				if ($user->getIdUsuario() == $logged_user->getIdUsuario()) {
+					$this->output['can_edit'] = true;
+				}
+			}
+
+			$this->output['domain'] = $_SERVER['SERVER_NAME'];
+			$this->_render('imagen');
+		}
+
+		
+
+
 		function registro(){
 			if(!empty($_POST)){
 				print_r($_POST);
@@ -52,6 +157,9 @@
 		function login(){
 			// echo "llego aqui";
 			if (_app::isLogged()) {
+				$this->_render_common_r('/welcome');
+
+
 				echo "is loged";
 				$user = _app::getUser();
 				$this->output['text'] = 'Buenos días';
@@ -82,19 +190,15 @@
 			$this->_render('login');
 		}
 
-		function formulario(){
-//			echo "llego aqui:welcome</br>";
+		function subir() {
 			if (!_app::isLogged()) {
-			 	echo "llego aqui:logeo";
-				return $this->render('registro');
+			 	$this->_render_common_r('/login');
 			}
 			$user = _app::getUser();
 			if(!empty($_FILES)){
-print_r($_POST);
-print_r($_FILES);
 				if (isset($_FILES['imagen'])) {
         			$errors = [];
-			        $path = '../imageUpload/'.$user->getIdusuario().'/';
+			        $path = '../imageUpload/'.$user->getIdUsuario().'/';
 			        if (!file_exists($path)){
 			        	mkdir ($path);
 			        }
@@ -124,7 +228,7 @@ print_r($_FILES);
 						$image->setIdImagen($nameHash);
 						$image->setNombre($fileName);
 						$image->setExtension($fileType);
-						$image->setIdusuario($user->getIdusuario());
+						$image->setIdusuario($user->getIdUsuario());
 						echo '</br>';
 						var_dump($image);
 						echo '</br>';
@@ -133,18 +237,46 @@ print_r($_FILES);
 					if ($errors) print_r($errors);
 				}
 			}
-			return $this->_render('form.imagen');
+
+			$this->output['link_return'] = '/welcome';
+			return $this->_render('subir');
 		}
 
-        function ver($id = '',$img = ''){
-            $path = '../imageUpload/'.$id.'/'.$img;
-            if (!file_exists($path)) {
-                exit;
-            }
-            $prop = getimagesize($path);
-		    header('Content-Type: '.$prop['mime']);
-		    readfile($path);exit;
-        }
+		function ver($id = '',$img = ''){
+			$path = '../imageUpload/'.$id.'/'.$img;
+			if (!file_exists($path)) {
+				exit;
+			}
+			$prop = getimagesize($path);
+			header('Content-Type: '.$prop['mime']);
+			readfile($path);exit;
+		}
 
 
-}
+		function tag($id = ''){
+			if (empty($id)){
+				exit;
+			}
+			$TagTable = new TagTable();
+			$tag = $TagTable->getById($id);
+			if ($tag === null) {
+				exit;
+			}
+
+			$ImageTable = new ImageTable();
+			$images = $ImageTable->getImagesFromTag($tag);
+
+			$arrimages = [];
+			foreach ($images as $image) {
+				$img = $image->toArray();
+				$img['idusuario'] = $tag->getIdUsuario();
+				$arrimages[] = $img;
+			}
+
+			$this->output['images'] = $arrimages;
+			$this->output['tag'] = $tag->toArray();
+
+			$this->_render('galeria');
+			
+		}
+	}

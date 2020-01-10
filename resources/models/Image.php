@@ -18,6 +18,19 @@
 			//var_dump($stmt->execute());
 
 		}
+
+		function getById(string $idimagen){
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare('SELECT * FROM imagen WHERE imagen.idimagen=? LIMIT 1');
+			$stmt->bind_param("s",$idimagen);
+			$stmt->execute();
+			$result = $stmt->get_result();
+			$obj = $result->fetch_array();
+			if (empty($obj)) {
+				return null;
+			}
+			return $this->__assign($obj);
+		}
 		
 		function getImagesFromUser(User $user, array $params= null):array{
 			if (!isset($params['count'])){
@@ -29,41 +42,66 @@
 			$first = ($params['page'] * $params['count']);
 			$count = $params['count'];
 
-            $idusuario = $user->getIdUsuario();
+			$idusuario = $user->getIdUsuario();
 
 			$mysqli = $this->conn();
-            // LIMIT ? OFFSET ?
-        	$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE idusuario = ?');
-        	$stmt->bind_param("i", $idusuario);
-            $stmt->execute();
-            $result = $stmt->get_result();
+			// LIMIT ? OFFSET ?
+			$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE idusuario = ?');
+			$stmt->bind_param("i", $idusuario);
+			$stmt->execute();
+			$result = $stmt->get_result();
 
-            $images = [];
-            while (($obj = $result->fetch_array(MYSQLI_ASSOC)) !== null) {
-                $images[] = $this->__assign($obj);
-            }
-            return $images;
+			$images = [];
+			while (($obj = $result->fetch_array(MYSQLI_ASSOC)) !== null) {
+				$images[] = $this->__assign($obj);
+			}
+			return $images;
+		}
+		function getImagesFromTag(Tag $tag, array $params= null):array{
+			if (!isset($params['count'])){
+				$params['count'] = 0;
+			}
+			if (!isset($params['page'])){
+				$params['page'] = 0;
+			}
+			$first = ($params['page'] * $params['count']);
+			$count = $params['count'];
+
+			$idusuario = $tag->getIdUsuario();
+			$idetiqueta = $tag->getIdEtiqueta();
+
+			$mysqli = $this->conn();
+			// LIMIT ? OFFSET ?
+			$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE idusuario = ? AND imagen.idimagen IN (SELECT etiqueta_imagen.idimagen FROM etiqueta_imagen WHERE etiqueta_imagen.idetiqueta = ?)');
+			$stmt->bind_param("ii", $idusuario,$idetiqueta);
+			$stmt->execute();
+			$result = $stmt->get_result();
+
+			$images = [];
+			while (($obj = $result->fetch_array(MYSQLI_ASSOC)) !== null) {
+				$images[] = $this->__assign($obj);
+			}
+			return $images;
 		}
 		function __assign($array): Image{
-		    $image = new Image();
-		    $image->setIdImagen($array['idimagen']);
-		    $image->setNombre($array['nombre']);
-		    $image->setExtension($array['extension']);
-		    $image->setCamara($array['camara']);
-		    $image->setFecha($array['fecha']);
-		    $image->setLocalizacion($array['localizacion']);
-		    $image->setIdUsuario($array['idusuario']);
-		    return $image;
+			$image = new Image();
+			$image->setIdImagen($array['idimagen']);
+			$image->setNombre($array['nombre']);
+			$image->setExtension($array['extension']);
+			$image->setCamara($array['camara']);
+			$image->setFecha($array['fecha']);
+			$image->setLocalizacion($array['localizacion']);
+			$image->setIdUsuario($array['idusuario']);
+			return $image;
 		}
 		function countImages(User $user): int{
-		    $mysqli = $this->conn();
-	        $stmt = $mysqli->prepare('SELECT COUNT(*) FROM `imagen` WHERE `idusuario` = (SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1)');///
-	        $stmt->bind_param("s",$user->getNombre());
-	        $stmt->execute();
-	        $rows = $stmt->get_result();
-	        return $rows;//mirar
-    	}
-
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare('SELECT COUNT(*) FROM `imagen` WHERE `idusuario` = (SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1)');///
+			$stmt->bind_param("s",$user->getNombre());
+			$stmt->execute();
+			$rows = $stmt->get_result();
+			return $rows;//mirar
+		}
 	}
 
 	class Image{
@@ -165,5 +203,10 @@
 
 		}
 	
-    
-}
+    		function toArray(){
+			return [
+				'idimagen'=>$this->idImagen,
+				'nombre'=>$this->nombre
+			];
+		}
+	}
