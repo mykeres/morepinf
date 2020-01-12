@@ -10,6 +10,8 @@
 			$ImageTable = new ImageTable();
 			$images = $ImageTable->getImagesFromUser($user,['count'=>30]);
 print_r($images[0]);
+			$numeroImagenesUser = $ImageTable->countImagesFromUser($user);
+			echo 'numero de imagenes de usuario: '. $numeroImagenesUser;
 exit;
 		}
 		function tags(){

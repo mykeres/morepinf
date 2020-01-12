@@ -4,8 +4,8 @@
 			if (!_app::isLogged()) {
 				$this->_render_common_r('/login');
 			}
-
-			$this->_render('main');
+			$this->login();
+			$this->_render('login');
 		}
 		function welcome(){
 			if (!_app::isLogged()) {
@@ -13,8 +13,10 @@
 			}
 
 			$user = _app::getUser();
+			$imageTable = new ImageTable();
+			$imageTable->countImagesFromUser($user);
 			$this->output['user'] = $user->toArray();
-
+			$this->output['numeroImagenes'] = $imageTable->countImagesFromUser($user);
 			$this->_render('welcome');
 		}
 		function galeria($id = ''){
@@ -83,16 +85,24 @@
 			if(!empty($_POST)){
 
 				$nombre = $_POST['nombre'];
+				$nombre = trim($nombre);
 				$tipo = $_POST['tipo'];
 				if (!in_array($tipo,Tag::$tipos)){
 					echo "intruso";
 					//eliminar cookie y echarlo a registro
 					exit;
 				}
-				if ($TagTable->existTag($tags)){
-					$TagTable->insertTagImage();
+				$tag = new Tag();
+				$intid = intval($id);
+				$tag->setIdUsuario($intid);
+				$tag->setNombre($nombre);
+				$tag->setTipo($tipo);
+				if (!$TagTable->existTag($tag) && !empty($nombre)){
+					$TagTable->insertTagImage($tag,$image);
+					$this->_render_common_r('/imagen/'.$id.'/'.$img);
 				}
 			}
+
 
 			if (_app::isLogged()) {
 				$logged_user = _app::getUser();
@@ -110,14 +120,12 @@
 
 		function registro(){
 			if(!empty($_POST)){
-				print_r($_POST);
 				$nombre = $_POST['nombre'];
 				$userTable = new UserTable();
 				$currentUser = $userTable->getByName($nombre);
 				if (!empty($currentUser)) {
-					echo $nombre." esta pillado escoge otro";
-					return $this->_render('login.invalid');
-					exit;
+					$this->output['nombreInvalido']=$nombre;
+					return $this->_render('registro');
 				}
 				$password = $_POST['password'];
 				$email = $_POST['email'];
@@ -127,48 +135,15 @@
 				$newUser->setNombre($nombre);
 				$userTable = new UserTable();
 				$userTable->insert($newUser);
+				$this->_render_common_r('welcome');
+			}
 
-				// probaturas
-				echo "<h1>prueba</h1>";
-				$getbyname=$userTable->getByName($nombre);
-				print_r($getbyname);
-				exit;
-			}
 			$this->_render('registro');
-			// echo 'hola';
-			// exit;
-		}
-		function wall(){
-			if (!_app::isLogged()) {
-				$this->login();// enviamos al login
-				exit;
-			}
-			if(!empty($_FILES['imagen'])){
-				$tipo=$_FILES["imagen"]["type"];
-				if($tipo=="image/jpeg"){
-					$exif = exif_read_data($_FILES['imagen']['tmp_name']);
-					print_r($exif);
-				}
-				exit;
-			}
-			$this->_render('wall');
 		}
 
 		function login(){
-			// echo "llego aqui";
 			if (_app::isLogged()) {
 				$this->_render_common_r('/welcome');
-
-
-				echo "is loged";
-				$user = _app::getUser();
-				$this->output['text'] = 'Buenos días';
-				$this->output['text2'] = [
-							'pos1'=>'valor'
-						];
-				$this->output['debo_pintar_mensaje'] = false;
-				$this->output['user'] = $user;
-				return $this->_render('welcome');
 			}
 
 			if(!empty($_POST)){
@@ -182,7 +157,7 @@
 				}
 				if ($userTable->userMatches($currentUser, $password)){
 					setcookie('user',$nombre,time() + 360000,'/');
-					return $this->_render('welcome');
+					return $this->_render_common_r('/welcome');
 				}
 				return $this->_render('login.invalid');
 			}
@@ -221,9 +196,6 @@
 						move_uploaded_file($fileTmp, $file);
 						//subir a bbdd.
 						$imageTable = new ImageTable();
-						echo '</br>';
-						var_dump($imageTable);
-						echo '</br>';
 						$image = new Image();
 						$image->setIdImagen($nameHash);
 						$image->setNombre($fileName);
@@ -249,7 +221,8 @@
 			}
 			$prop = getimagesize($path);
 			header('Content-Type: '.$prop['mime']);
-			readfile($path);exit;
+			readfile($path);
+			exit;
 		}
 
 
@@ -279,4 +252,5 @@
 			$this->_render('galeria');
 			
 		}
+		
 	}

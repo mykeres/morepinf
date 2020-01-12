@@ -3,17 +3,15 @@
 	class ImageTable extends DataBase{
 		function insert(Image $image){
 			$mysqli = $this->conn();
-			$stmt = $mysqli->prepare("INSERT INTO `imagen` (`idimagen`,`fecha`, `localizacion`,`nombre`, `camara`, `idusuario`, `extension`) VALUES (?,?,?,?,?,?,?)");
+			$stmt = $mysqli->prepare("INSERT INTO `imagen` (`idimagen`,`fecha`, `nombre`, `camara`, `idusuario`, `extension`) VALUES (?,?,?,?,?,?)");
+			$image->readMetadata();
 			$idImagen = $image->getIdImagen();
 			$fecha = $image->getFecha();
-			$localizacion = $image->getLocalizacion();
 			$nombre = $image->getNombre();
 			$camara = $image->getCamara();
 			$idUsuario = $image->getIdUsuario();
 			$extension = $image->getExtension();
-			$stmt->bind_param("sssssis", $idImagen, $fecha,
-				$localizacion, $nombre,
-				$camara, $idUsuario, $extension);
+			$stmt->bind_param("ssssis", $idImagen, $fecha, $nombre, $camara, $idUsuario, $extension);
 			$stmt->execute();
 			//var_dump($stmt->execute());
 
@@ -90,17 +88,18 @@
 			$image->setExtension($array['extension']);
 			$image->setCamara($array['camara']);
 			$image->setFecha($array['fecha']);
-			$image->setLocalizacion($array['localizacion']);
 			$image->setIdUsuario($array['idusuario']);
 			return $image;
 		}
-		function countImages(User $user): int{
+		function countImagesFromUser(User $user): int{
 			$mysqli = $this->conn();
-			$stmt = $mysqli->prepare('SELECT COUNT(*) FROM `imagen` WHERE `idusuario` = (SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1)');///
-			$stmt->bind_param("s",$user->getNombre());
+			$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE `idusuario` = (SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1)');
+			$username = $user->getNombre();
+			$stmt->bind_param("s",$username);
 			$stmt->execute();
-			$rows = $stmt->get_result();
-			return $rows;//mirar
+			$stmt->store_result();
+			$numRows = $stmt->num_rows;
+			return $numRows;
 		}
 	}
 
@@ -111,7 +110,6 @@
 		private $extension;
 		private $camara;
 		private $fecha;
-		private $localizacion;
 		private $idUsuario;
 
 		function __construct(){
@@ -168,25 +166,12 @@
 		{
 		    return $this->fecha;
 		}
-
 	
 		public function setFecha($fecha)
 		{
 		    $this->fecha = $fecha;
 		    return $this;
 		}
-
-		public function getLocalizacion()
-		{
-		    return $this->localizacion;
-		}
-
-		public function setLocalizacion($localizacion)
-		{
-		    $this->localizacion = $localizacion;
-		    return $this;
-		}
-
 
 		public function getIdUsuario()
 		{
@@ -199,11 +184,32 @@
 		    return $this;
 		}	
 
-		function extractMetadata(){
-
+		function readMetadata(){
+			// esta funcion solo se puede utilizar una vez que se ha subido la foto
+			$path = '../imageUpload/'.$this->idUsuario.'/'.$this->idImagen;
+			$camMake = "No disponible.";
+			$camModel = "";
+			$camDate = "No disponible.";
+			if (exif_read_data($path,'IFD0')) {
+			    $exif_ifd0 = exif_read_data($path,0,true);
+			     
+			    if (isset($exif_ifd0['Make'])) {
+			    	$camMake = $exif_ifd0['Make'];
+			    } 
+			     
+			    if (isset($exif_ifd0['Model'])) {
+			        $camModel = $exif_ifd0['Model'];
+			    } 
+			     
+			    if (isset($exif_ifd0['DateTime'])) {
+			        $camDate = $exif_ifd0['DateTime'];
+			    } 
+			}
+			$this->camara = $camMake." ".$camModel;
+			$this->fecha = $camDate; 
 		}
 	
-    		function toArray(){
+		function toArray(){
 			return [
 				'idimagen'=>$this->idImagen,
 				'nombre'=>$this->nombre

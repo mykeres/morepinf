@@ -4,30 +4,32 @@
 			$mysqli = $this->conn();
 			$stmt = $mysqli->prepare("INSERT INTO etiqueta (nombre, tipo, idusuario) VALUES (?,?,?)");
 			$tagNombre=$tag->getNombre();
-//echo '----------------->'.$tagNombre.'<br/>';
-
 			$tagTipo = $tag->getTipo();
-//echo '----------------->'.$tagTipo.'<br/>';
 			$tagIdUsuario = $tag->getIdUsuario();
-			$stmt->bind_param("ssi", $tagNombre, $tagTipo, $tagIdusuario);
+			$stmt->bind_param("ssi", $tagNombre, $tagTipo, $tagIdUsuario);
 			$stmt->execute();
 		}
 
 		function insertTagImage(Tag $tag, Image $image){
 			$this->insert($tag);
-			$stmt = $mysqli->prepare("INSERT INTO etiqueta_imagen (idetiqueta, idimagen) VALUES (?,?)");
-			$idetiqueta = $tag->getIdEtiqueta();
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare("INSERT INTO etiqueta_imagen (idetiqueta, idimagen) SELECT idetiqueta, ? FROM etiqueta WHERE nombre=? AND tipo=?");
 			$idimagen = $image->getIdImagen();
-			$stmt->bind_param("is", $idetiqueta,$idimagen);
+			$nombre = $tag->getNombre();
+			$tipo = $tag->getTipo();
+			$stmt->bind_param("sss" ,$idimagen, $nombre, $tipo);
 			$stmt->execute();
 		}
 
 		function existTag(Tag $tag): bool{
-			$stmt = $mysqli->prepare("SELECT * from etiqueta WHERE idusuario=? AND nombre= ? LIMIT 1");
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare("SELECT * from etiqueta WHERE idusuario=? AND nombre= ? AND tipo= ? LIMIT 1");
 			$idusuario = $tag->getIdusuario();
-			$nombre->$tag->getNombre();
-			$stmt->bind_param("is",$idusuario,$nombre);
+			$nombre = $tag->getNombre();
+			$tipo = $tag->getTipo();
+			$stmt->bind_param("iss",$idusuario,$nombre,$tipo);
 			$stmt->execute();
+			var_dump($stmt->get_result());
 			return boolval($stmt->get_result());
 
 		}
@@ -58,14 +60,11 @@
 			    $tags[] = $this->__assign($obj);
 			}
 			return $tags;
-		    ///TODO  
 		}
 		public function getTagsFromUser(User $user): ?array{
 		    $mysqli = $this->conn();
 		    $stmt = $mysqli->prepare('SELECT * FROM etiqueta WHERE etiqueta.idusuario= ?');
 		    $idusuario = $user->getIdusuario();		    
-//var_dump($idusuario);
-			//if($stmt ===false){ return false;}
 		    $stmt->bind_param("i",$idusuario);
 		    $stmt->execute();
 		    $result = $stmt->get_result();
@@ -96,12 +95,7 @@
 		    $tag->setIdUsuario($array['idusuario']);
 		    return $tag;
 		}
-		public function tagExists(Tag $tag): bool{
-		    $name = $user->getNombre();
-		    return boolval($this->getByName($name));
-		    ///mirar
-		}
-
+		
 
 	}
 

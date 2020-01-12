@@ -15,7 +15,7 @@
 		{{#can_edit}}
 		<form method="POST">
 			<label for="nombre">nombre</label>
-			<input type="text" name="nombre" id="nombre">
+			<input type="text" name="nombre" id="nombre" required placeholder="nombre etiqueta">
 			<label for="tipo">tipo</label>
 			<select name="tipo" id="tipo">
 				<option value="tema">tema</option>

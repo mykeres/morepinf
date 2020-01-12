@@ -13,7 +13,7 @@ class UserTable extends DataBase{
 		if (empty($obj)) {
 			return null;
 		}
-        	return $this->__assign($obj);
+    	return $this->__assign($obj);
 	}
 
 	function getById(int $idusuario){
@@ -43,7 +43,6 @@ class UserTable extends DataBase{
             
 			$users[] = $user;
 		}
-
 		return $users;
 	}
 
@@ -64,8 +63,6 @@ class UserTable extends DataBase{
         $userEmail = $user->getEmail();
 		$stmt->bind_param("sss", $userNombre, $hash , $userEmail);
 		$stmt->execute();
-
-		//FIXME: comprobar
 	}
 
     function deleteByName(string $name){
@@ -95,8 +92,6 @@ class User{
 	private $password;
 	private $email;
     public function __construct(){
-       //echo "construyo user"; 
-       // sleep(3);
     }
     public function getIdusuario(){
         return $this->idusuario;
@@ -121,8 +116,6 @@ class User{
 
     public function setPassword($password){
         $this->password = $password;
-        //$hash = password_hash($this->password, PASSWORD_BCRYPT);
-        //$this->password = $hash;
     }
 
     public function setEmail($email){

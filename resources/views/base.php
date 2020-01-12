@@ -17,8 +17,14 @@
 			</a>
 		</div>
 		{{/link_return}}
+		{{#login}}
 		<div>
-			<input type="text" name="search" placeholder="Buscar...">
+			<a href="">Logout</a>
+		</div>
+		{{/login}}
+		<div>
+			<label for="search">Busqueda</label>
+			<input type="text" name="search" id="search" placeholder="Buscar...">
 		</div>
 	</header>
 	{{__MAIN__}}
