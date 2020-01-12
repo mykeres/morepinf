@@ -17,6 +17,7 @@
 
 
 	class _app{
+		public static $folder_images = 'db/imageUpload/';
 		private static $user = null;
 		public static function getUser(){
 			return self::$user;
@@ -35,5 +36,12 @@
                         }
                         self::$user = $user; //cacheamos 
                         return true;
+		}
+		public static function getImageFolder(string $idusuario){
+			$path = self::$folder_images.$idusuario.'/';
+			if (!file_exists($path)){
+				mkdir ($path);
+			}
+			return $path;
 		}
 	}

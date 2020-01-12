@@ -7,8 +7,9 @@
 
 		<form method="POST" enctype="multipart/form-data">
 			<label for="imagen">Imagen para subir</label>
-			<input type="file" name="imagen" />
+			<input type="file" name="imagen" id="imagen"/>
 			<button>Subir Imagen</button>
 		</form>
 	</main>
 </article>
+<script type="text/javascript" src="../static/js/formSubir.js"></script>

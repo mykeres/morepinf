@@ -17,14 +17,18 @@
 			</a>
 		</div>
 		{{/link_return}}
-		{{#login}}
-		<div>
-			<a href="">Logout</a>
-		</div>
-		{{/login}}
-		<div>
+		<div style="flex-grow: 1;">
 			<label for="search">Busqueda</label>
 			<input type="text" name="search" id="search" placeholder="Buscar...">
+		</div>
+		<div>
+			{{#connected_user.nombre}}
+				<span>{{connected_user.nombre}}</span>
+				<a href="/logout">Logout</a>
+			{{/connected_user.nombre}}
+			{{^connected_user.nombre}}
+				<a href="/login">Login</a>
+			{{/connected_user.nombre}}
 		</div>
 	</header>
 	{{__MAIN__}}

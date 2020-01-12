@@ -27,6 +27,10 @@
 			margin-top: 0;
 		}
 
+		.hidden{
+			display: none;
+		}
+
 		body{
 			color: #454749;
 			font-family: 'Roboto', sans-serif;
@@ -77,9 +81,12 @@
 		}
 		/*1280x720 minimo movil*/
 		.image-thumb{
+			border: solid 8px;
+			border-radius:3px;
 			display: inline-block;
 			max-width: 15vw;
 			padding: 10px;
+			margin-bottom: 5px;
 		}
 		.image-thumb img{
 			max-width: 100%;

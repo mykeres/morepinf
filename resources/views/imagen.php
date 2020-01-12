@@ -28,8 +28,16 @@
 			<input type="submit" value="añadir">
 		</form>
 		{{/can_edit}}
-
+		
 		<h3>Compartir:</h3>
 		<textarea readonly>http://{{domain}}/imagen/{{user.idusuario}}/{{image.idimagen}}</textarea>
+		<form method="POST">
+			{{#tagsNotInImage}}
+			<div>{{tagsNotInImage}}</div>
+			{{#tagsNotInImage.tipo}}
+			<input type="submit" value="{{nombre}}">
+			{{/tagsNotInImage.tipo}}
+			{{/tagsNotInImage}}
+		</form>
 	</main>
 </article>

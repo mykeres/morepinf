@@ -7,6 +7,12 @@
 			$this->login();
 			$this->_render('login');
 		}
+		function _datos_genericos(){
+			if (_app::isLogged()) {
+				$user = _app::getUser();
+				$this->output['connected_user'] = $user->toArray();
+			}
+		}
 		function welcome(){
 			if (!_app::isLogged()) {
 				$this->_render_common_r('/login');
@@ -17,6 +23,8 @@
 			$imageTable->countImagesFromUser($user);
 			$this->output['user'] = $user->toArray();
 			$this->output['numeroImagenes'] = $imageTable->countImagesFromUser($user);
+
+			$this->_datos_genericos();
 			$this->_render('welcome');
 		}
 		function galeria($id = ''){
@@ -32,6 +40,51 @@
 				exit;
 			}
 
+			if (!empty($_POST['command'])) {
+				switch ($_POST['command']) {
+					case 'etiqueta':
+						if (empty($_POST['idetiqueta'])) {
+							$this->_render_common_r('/galeria/'.$id);
+							break;
+						}
+
+						$TagTable = new TagTable();
+						$ImageTable = new ImageTable();
+
+						$tag = $TagTable->getById(intval($_POST['idetiqueta']));
+						if ($tag === null) {
+							$this->_render_common_r('/galeria/'.$id);
+							break;
+						}
+
+						if ($tag->getIdUsuario() !== $user->getIdUsuario()) {
+							/* el id de la tag no corresponde con el id del dueño 
+							 * de la galería */
+							$this->_render_common_r('/galeria/'.$id);
+							break;
+						}
+
+						foreach ($_POST['seleccion'] as $idimage) {
+							$image = $ImageTable->getById($idimage);
+							if ($image === null) {
+								continue;
+							}
+
+							$TagTable->insertTagImage($tag,$image);
+						}
+
+						$this->_render_common_r('/galeria/'.$id);
+						break;
+					case 'borrar':
+						$ImageTable = new ImageTable();
+						foreach ($_POST['seleccion'] as $idimage) {
+							$ImageTable->removeById($idimage);
+						}
+						$this->_render_common_r('/galeria/'.$id);
+						break;
+				}
+			}
+
 			$ImageTable = new ImageTable();
 			$images = $ImageTable->getImagesFromUser($user);
 
@@ -44,6 +97,24 @@
 
 			$this->output['images'] = $arrimages;
 
+			$TagTable = new TagTable();
+			$tags = $TagTable->getTagsFromUser($user);
+			$arrtags = [];
+			foreach ($tags as $tag) {
+				$tg = $tag->toArray();
+				$arrtags[] = $tg;
+			}
+
+			$this->output['tags'] = $arrtags;
+
+			if (_app::isLogged()) {
+				$logged_user = _app::getUser();
+				if ($user->getIdUsuario() == $logged_user->getIdUsuario()) {
+					$this->output['can_edit'] = true;
+				}
+			}
+
+			$this->_datos_genericos();
 			$this->_render('galeria');
 		}
 
@@ -80,8 +151,25 @@
 				$tagArray = $tag->toArray();
 				$nameTags[]= $tagArray;
 			}
+			var_dump($nameTags);
 			$this->output['tags'] = $nameTags;
-
+			$tagsNot = $TagTable->getTagsNotInImage($image);
+			$tagsNotIn=[];
+			foreach ($tagsNot as $tag) {
+				$tagArray = $tag->toArray();
+				$tagsNotIn[]= $tagArray;
+			}
+			//cambiamos la estructura a
+			//[]->tipo->nombre
+			$tagsNotInImage = [];
+			foreach ($tagsNotIn as $tag){
+				$tipo = $tag['tipo'];
+				$nombre = $tag['nombre'];
+				$tagsNotInImage[$tipo][] = $nombre;
+			}
+			$this->output['tagsNotInImage'] = $tagsNotInImage;
+			echo "tagsNotInImage:</br>";
+			var_dump($tagsNotInImage);		
 			if(!empty($_POST)){
 
 				$nombre = $_POST['nombre'];
@@ -170,44 +258,36 @@
 			 	$this->_render_common_r('/login');
 			}
 			$user = _app::getUser();
-			if(!empty($_FILES)){
-				if (isset($_FILES['imagen'])) {
-        			$errors = [];
-			        $path = '../imageUpload/'.$user->getIdUsuario().'/';
-			        if (!file_exists($path)){
-			        	mkdir ($path);
-			        }
-					$extensions = ['jpg', 'jpeg', 'png', 'gif'];
+			if(!empty($_FILES['imagen'])){
+				$errors = [];
+				$path = _app::getImageFolder($user->getIdUsuario());
+				$extensions = ['jpg', 'jpeg', 'png', 'gif'];
 
-					$fileName = $_FILES['imagen']['name'];
-					$fileTmp = $_FILES['imagen']['tmp_name'];
-					$fileType = $_FILES['imagen']['type'];
-					$fileSize = $_FILES['imagen']['size'];
-					$fileType= str_replace('image/', '', $fileType);
-					$nameHash = uniqid();
-					$file = $path . $nameHash;
-					if (!in_array($fileType, $extensions)) {
-						$errors[] =  $fileName . ' ' . $fileType . " No es una imagen.";
-					}
-					if ($fileSize > (2 * 1024 * 1024)){
-						$errors[] =  $fileName . ' ' . $fileType . " Excede el tamaño máximo.";
-					}
-					if (empty($errors)) {
-						move_uploaded_file($fileTmp, $file);
-						//subir a bbdd.
-						$imageTable = new ImageTable();
-						$image = new Image();
-						$image->setIdImagen($nameHash);
-						$image->setNombre($fileName);
-						$image->setExtension($fileType);
-						$image->setIdusuario($user->getIdUsuario());
-						echo '</br>';
-						var_dump($image);
-						echo '</br>';
-						$imageTable->insert($image);
-					}
-					if ($errors) print_r($errors);
+				$fileName = $_FILES['imagen']['name'];
+				$fileTmp = $_FILES['imagen']['tmp_name'];
+				$fileType = $_FILES['imagen']['type'];
+				$fileSize = $_FILES['imagen']['size'];
+				$fileType= str_replace('image/', '', $fileType);
+				$nameHash = uniqid();
+				$file = $path . $nameHash;
+				if (!in_array($fileType, $extensions)) {
+					$errors[] =  $fileName . ' ' . $fileType . " No es una imagen.";
 				}
+				if ($fileSize > (2 * 1024 * 1024)){
+					$errors[] =  $fileName . ' ' . $fileType . " Excede el tamaño máximo.";
+				}
+				if (empty($errors)) {
+					move_uploaded_file($fileTmp, $file);
+					//subir a bbdd.
+					$imageTable = new ImageTable();
+					$image = new Image();
+					$image->setIdImagen($nameHash);
+					$image->setNombre($fileName);
+					$image->setExtension($fileType);
+					$image->setIdusuario($user->getIdUsuario());
+					$imageTable->insert($image);
+				}
+				return $this->_render_common_r('/subir');
 			}
 
 			$this->output['link_return'] = '/welcome';
@@ -215,7 +295,7 @@
 		}
 
 		function ver($id = '',$img = ''){
-			$path = '../imageUpload/'.$id.'/'.$img;
+			$path = _app::getImageFolder($id).$img;
 			if (!file_exists($path)) {
 				exit;
 			}

@@ -29,6 +29,26 @@
 			}
 			return $this->__assign($obj);
 		}
+
+		function removeById(string $idimagen){
+			$image = $this->getById($idimagen);
+			if ($image === null) {
+				return false;
+			}
+
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare('DELETE FROM imagen WHERE imagen.idimagen=? LIMIT 1');
+			$stmt->bind_param("s",$idimagen);
+			$stmt->execute();
+			$result = $stmt->get_result();
+
+			$path = 'db/imageUpload/'.$image->getIdUsuario().'/'.$image->getIdImagen();
+			if (file_exists($path)) {
+				unlink($path);
+			}
+
+			return true;
+		}
 		
 		function getImagesFromUser(User $user, array $params= null):array{
 			if (!isset($params['count'])){
@@ -186,7 +206,7 @@
 
 		function readMetadata(){
 			// esta funcion solo se puede utilizar una vez que se ha subido la foto
-			$path = '../imageUpload/'.$this->idUsuario.'/'.$this->idImagen;
+			$path = 'db/imageUpload/'.$this->idUsuario.'/'.$this->idImagen;
 			$camMake = "No disponible.";
 			$camModel = "";
 			$camDate = "No disponible.";
