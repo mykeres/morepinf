@@ -107,6 +107,20 @@
 
 			$this->output['tags'] = $arrtags;
 
+			$tagTipos=[];
+
+			foreach($arrtags as $value){
+				$tgNombre = $value['nombre'];
+				$tgId =$value['idetiqueta'];
+				$tagTipos[$value['tipo']][] = ['nombre'=>$tgNombre, 'idetiqueta'=>$tgId];
+			}	
+
+			foreach(Tag::$tipos as $value){
+				if(array_key_exists($value, $tagTipos)){
+					$this->output[$value]= $tagTipos[$value];
+				}
+			}
+
 			if (_app::isLogged()) {
 				$logged_user = _app::getUser();
 				if ($user->getIdUsuario() == $logged_user->getIdUsuario()) {
@@ -200,6 +214,18 @@
 						}
 						$this->_render_common_r('/imagen/'.$id.'/'.$img);
 						break;
+					case 'renombrar':
+						$nombre = $_POST['nombreImagen'];
+						if (empty($nombre)) {
+							echo 'nombre invalido';
+							exit;
+						}
+						$image = new Image();
+						$image->setIdImagen($img);//mirar
+						$ImageTable->updateName($image,$nombre);
+						$this->_render_common_r('/imagen/'.$id.'/'.$img);
+						break;
+
 				}
 			}
 
@@ -210,10 +236,9 @@
 					$this->output['can_edit'] = true;
 				}
 			}
-
-			$this->output['domain'] = $_SERVER['SERVER_NAME'];
-			$this->_datos_genericos();
-			$this->_render('imagen');
+				$this->output['domain'] = $_SERVER['SERVER_NAME'];
+				$this->_datos_genericos();
+				$this->_render('imagen');
 		}
 
 		
@@ -236,9 +261,8 @@
 				$newUser->setNombre($nombre);
 				$userTable = new UserTable();
 				$userTable->insert($newUser);
-				$this->_render_common_r('welcome');
+				$this->_render_common_r('/welcome');
 			}
-
 			$this->_render('registro');
 		}
 
@@ -246,11 +270,9 @@
 			if (_app::isLogged()) {
 				$this->_render_common_r('/welcome');
 			}
-
 			if(!empty($_POST)){
 				$nombre = $_POST['nombre'];
 				$password = $_POST['password'];
-
 				$userTable = new UserTable();
 				$currentUser = $userTable->getByName($nombre);
 				if (empty($currentUser)) {
@@ -262,7 +284,6 @@
 				}
 				return $this->_render('login.invalid');
 			}
-
 			$this->_render('login');
 		}
 
@@ -304,6 +325,7 @@
 			}
 
 			$this->output['link_return'] = '/welcome';
+			$this->_datos_genericos();
 			return $this->_render('subir');
 		}
 
@@ -338,12 +360,20 @@
 				$img['idusuario'] = $tag->getIdUsuario();
 				$arrimages[] = $img;
 			}
-
+			$this->output['link_return'] = '/galeria/'.$tag->getIdUsuario();
 			$this->output['images'] = $arrimages;
 			$this->output['tag'] = $tag->toArray();
-
+			$this->_datos_genericos();
 			$this->_render('galeria');
 			
+		}
+
+		function logout(){
+			if(isset($_COOKIE['user'])){
+				setcookie('user','',time()-7000000,'/');
+			}
+			header("location: /");
+			$this->_render('logout');
 		}
 		
 	}

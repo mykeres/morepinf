@@ -1,7 +1,5 @@
 <article>
-	<aside>
-		
-	</aside>
+
 	<main>
 		{{#tag.nombre}}
 		<h1>Tag <span>{{tag.nombre}}</span></h1>
@@ -50,5 +48,28 @@
 			</div>
 		</form>
 	</main>
+	<aside>
+		<h3>Personas:</h3>
+		{{#persona}}		
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+		{{/persona}}
+		<h3>Temas:</h3>
+		{{#tema}}		
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+		{{/tema}}
+		<h3>Lugares:</h3>
+		{{#lugar}}		
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+		{{/lugar}}
+		<h3>Grupos:</h3>
+		{{#grupo}}		
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+		{{/grupo}}
+		<h3>Eventos:</h3>
+		{{#evento}}		
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+		{{/evento}}
+
+	</aside>
 	<script type="text/javascript" src="static/js/form.js"></script>
 </article>

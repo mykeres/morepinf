@@ -4,6 +4,13 @@
 	</aside>
 	<main>
 		<h1>{{image.nombre}}</h1>
+		{{#can_edit}}
+		<form method="POST" name="update-name">
+			<input type="hidden" name="command" value="renombrar">
+			<input type="text" name="nombreImagen" placeholder="nuevo nombre de imagen" required>
+			<button>Confirmar</button> 
+		</form>
+		{{/can_edit}}
 		<p>Foto de la galeria</p>
 
 		<div>

@@ -18,7 +18,7 @@
 		function updateName(Image $image, string $nombre){
 			$mysqli = $this->conn();
 			$stmt = $mysqli->prepare("UPDATE imagen SET nombre= ? WHERE idimagen= ?");
-			$idImagen = $image->getIdImagen();
+			$idImagen = $image->getidimagen();
 			$stmt->bind_param("ss", $nombre, $idImagen);
 			$stmt->execute();
 		}

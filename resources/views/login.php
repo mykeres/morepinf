@@ -7,7 +7,7 @@
 			<label for="password">contraseña</br>
 			</label>
 			<input type="password" name="password" id="password" placeholder="Tu contraseña" required></br>
-			<input type="submit" value="Entrar">
+			<button>Entrar</button>
 		</form>
 	</div>
 </article>
