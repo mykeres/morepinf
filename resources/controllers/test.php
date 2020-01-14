@@ -22,26 +22,36 @@ exit;
 			
 			$tagTable = new TagTable();
 			$tag = new Tag();
-			$tag->setTipo('evento');// (evento lugar persona grupo tema) (enum)
-			$tag->setNombre('cumpleanos');
+			$tag->setTipo('tema');// (evento lugar persona grupo tema) (enum)
+			$tag->setNombre('cumple');
 			$tag->setIdUsuario(21);
+						
 
-			//$tagTable->insert($tag);
-//var_dump($tag);	
-			$tagsFromUser = $tagTable->getTagsFromUser($user);
-			$nameTags['nombre']=[];
-			foreach ($tagsFromUser as $tag) {
-				$nameTags['nombre'][]=$tag->getNombre();
-			}
-//var_dump($tagsFromUser);
-//var_dump($nameTags);
-			$ImageTable = new ImageTable();
-			$images = $ImageTable->getImagesFromUser($user,['count'=>1]);
 
-var_dump($images);
-			$image = $images[0];
-			$tagsFromImage = $tagTable->getTagsFromImage($image);
-var_dump($tagsFromImage);
+			//$tagsFromUser = $tagTable->getTagsFromUser($user);
+			//$nameTags['nombre']=[];
+			//foreach ($tagsFromUser as $tag) {
+			//	$nameTags['nombre'][]=$tag->getNombre();
+			//}
+			//$ImageTable = new ImageTable();
+			//$images = $ImageTable->getImagesFromUser($user,['count'=>1]);
+
+//var_dump($images);
+			//$image = $images[0];
+			//$tagsFromImage = $tagTable->getTagsFromImage($image);
+//var_dump($tagsFromImage);
+
+			$imagen = new Image();
+			$imagen->setIdImagen('5e177e33b5db6');
+			echo "_____";
+			$tag1 = new Tag();
+			$tag1->setTipo('tema');// (evento lugar persona grupo tema) (enum)
+			$tag1->setNombre('flores');
+			$tag1->setIdUsuario(21);
+		//	$tagTable->existTag($tag1);
+		//	$tagTable->insert($tag1);
+		//	var_dump($tagTable->existTag($tag1));
+			$tagTable->insertTagImage($tag1,$imagen);
 
 exit;
 		}

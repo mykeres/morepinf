@@ -1,6 +1,6 @@
 <?php
 	class TagTable extends DataBase{
-		function insert(Tag $tag){
+		function insert(Tag $tag) : ?int{
 			$mysqli = $this->conn();
 			$stmt = $mysqli->prepare("INSERT INTO etiqueta (nombre, tipo, idusuario) VALUES (?,?,?)");
 			$tagNombre=$tag->getNombre();
@@ -8,10 +8,30 @@
 			$tagIdUsuario = $tag->getIdUsuario();
 			$stmt->bind_param("ssi", $tagNombre, $tagTipo, $tagIdUsuario);
 			$stmt->execute();
+
+			if ($mysqli->insert_id === 0) {
+				return null;
+			}
+
+			return $mysqli->insert_id;
 		}
+		/*function insertTagImage(Tag $tag, Image $image){ 
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare("CALL insertar(?,?,?,?)");
+			$nombreEtiqueta= $tag->getNombre();
+			$tipoEtiqueta= $tag->getTipo();
+			$idusuario= $tag->getIdUsuario();
+			$idimagen = $image->getIdImagen();?
+			$param = array('ssis', &$nombreEtiqueta,&$tipoEtiqueta,&$idusuario,&$idimagen);
+			//$stmt->bind_param("ssis",$nombreEtiqueta,$tipoEtiqueta,$idusuario,$idimagen);
+			call_user_func_array(array($stmt,'bind_param'), $param);
+			$stmt->execute();			
+		}*/
 
 		function insertTagImage(Tag $tag, Image $image){
-			$this->insert($tag);
+			if ($this->existTag($tag)===null){
+				$this->insert($tag);
+			}
 			$mysqli = $this->conn();
 			$stmt = $mysqli->prepare("INSERT INTO etiqueta_imagen (idetiqueta, idimagen) VALUES (?,?)");
 			$idetiqueta = $tag->getIdEtiqueta();
@@ -19,17 +39,32 @@
 			$stmt->bind_param("ss" ,$idetiqueta,$idimagen);
 			$stmt->execute();
 		}
-
-		function existTag(Tag $tag): bool{
+		function removeTagImage(Tag $tag, Image $image){
+			$this->insert($tag); 
 			$mysqli = $this->conn();
-			$stmt = $mysqli->prepare("SELECT * from etiqueta WHERE idusuario=? AND nombre= ? AND tipo= ? LIMIT 1");
-			$idusuario = $tag->getIdusuario();
+			$stmt = $mysqli->prepare("DELETE FROM etiqueta_imagen WHERE idetiqueta = ? AND idimagen = ? LIMIT 1");
+			$idetiqueta = $tag->getIdEtiqueta();
+			$idimagen = $image->getIdImagen();
+			$stmt->bind_param("ss" ,$idetiqueta,$idimagen);
+			$stmt->execute();
+		}
+
+		function existTag(Tag $tag) : ?int {
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare("SELECT idetiqueta from etiqueta WHERE idusuario= ? AND nombre= ? AND tipo= ? LIMIT 1");
+
+			$idusuario = $tag->getIdUsuario();
 			$nombre = $tag->getNombre();
 			$tipo = $tag->getTipo();
 			$stmt->bind_param("iss",$idusuario,$nombre,$tipo);
 			$stmt->execute();
-			var_dump($stmt->get_result());
-			return boolval($stmt->get_result());
+
+			$result = $stmt->get_result();
+			if (($obj = $result->fetch_array(MYSQLI_ASSOC))) {
+				return $obj['idetiqueta'];
+			}
+
+			return null;
 		}
 
 
@@ -82,7 +117,7 @@
 			$result = $stmt->get_result();
 			$tags = array();
 			while ($obj = $result->fetch_array()) {
-			$tag = $this->__assign($obj);
+				$tag = $this->__assign($obj);
 				$tags[] = $tag;
 			}
 			return $tags;

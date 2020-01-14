@@ -151,43 +151,55 @@
 				$tagArray = $tag->toArray();
 				$nameTags[]= $tagArray;
 			}
-			var_dump($nameTags);
+			//var_dump($nameTags);
 			$this->output['tags'] = $nameTags;
-			$tagsNot = $TagTable->getTagsNotInImage($image);
-			$tagsNotIn=[];
-			foreach ($tagsNot as $tag) {
-				$tagArray = $tag->toArray();
-				$tagsNotIn[]= $tagArray;
-			}
-			//cambiamos la estructura a
-			//[]->tipo->nombre
-			$tagsNotInImage = [];
-			foreach ($tagsNotIn as $tag){
-				$tipo = $tag['tipo'];
-				$nombre = $tag['nombre'];
-				$tagsNotInImage[$tipo][] = $nombre;
-			}
-			$this->output['tagsNotInImage'] = $tagsNotInImage;
-			echo "tagsNotInImage:</br>";
-			var_dump($tagsNotInImage);		
-			if(!empty($_POST)){
 
-				$nombre = $_POST['nombre'];
-				$nombre = trim($nombre);
-				$tipo = $_POST['tipo'];
-				if (!in_array($tipo,Tag::$tipos)){
-					echo "intruso";
-					//eliminar cookie y echarlo a registro
-					exit;
-				}
-				$tag = new Tag();
-				$intid = intval($id);
-				$tag->setIdUsuario($intid);
-				$tag->setNombre($nombre);
-				$tag->setTipo($tipo);
-				if (!$TagTable->existTag($tag) && !empty($nombre)){
-					$TagTable->insertTagImage($tag,$image);
-					$this->_render_common_r('/imagen/'.$id.'/'.$img);
+			if (!empty($_POST['command'])) {
+				switch ($_POST['command']) {
+					case 'etiqueta':
+						$nombre = $_POST['nombre'];
+						$nombre = trim($nombre);
+						if (empty($nombre)) {
+							echo 'nombre invalido';
+							exit;
+						}
+						$tipo = $_POST['tipo'];
+						if (!in_array($tipo,Tag::$tipos)){
+							echo "intruso";
+							//eliminar cookie y echarlo a registro
+							exit;
+						}
+						$tag = new Tag();
+						$intid = intval($id);
+						$tag->setIdUsuario($intid);
+						$tag->setNombre($nombre);
+						$tag->setTipo($tipo);
+
+						$idetiqueta = $TagTable->existTag($tag);
+						if ($idetiqueta === null) {
+							$idetiqueta = $TagTable->insert($tag);
+							if ($idetiqueta === null) {
+								echo 'error';
+								exit;
+							}
+							$tag->setIdEtiqueta($idetiqueta);
+						} else {
+							$tag->setIdEtiqueta($idetiqueta);
+						}
+
+						$TagTable->insertTagImage($tag,$image);
+						$this->_render_common_r('/imagen/'.$id.'/'.$img);
+						break;
+					case 'borrar':
+						foreach ($_POST['seleccion'] as $idtag) {
+							$tag = $TagTable->getById($idtag);
+							if ($tag === null) {
+								continue;
+							}
+							$TagTable->removeTagImage($tag,$image);
+						}
+						$this->_render_common_r('/imagen/'.$id.'/'.$img);
+						break;
 				}
 			}
 
@@ -200,6 +212,7 @@
 			}
 
 			$this->output['domain'] = $_SERVER['SERVER_NAME'];
+			$this->_datos_genericos();
 			$this->_render('imagen');
 		}
 

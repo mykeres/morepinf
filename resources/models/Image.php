@@ -13,8 +13,14 @@
 			$extension = $image->getExtension();
 			$stmt->bind_param("ssssis", $idImagen, $fecha, $nombre, $camara, $idUsuario, $extension);
 			$stmt->execute();
-			//var_dump($stmt->execute());
+		}
 
+		function updateName(Image $image, string $nombre){
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare("UPDATE imagen SET nombre= ? WHERE idimagen= ?");
+			$idImagen = $image->getIdImagen();
+			$stmt->bind_param("ss", $nombre, $idImagen);
+			$stmt->execute();
 		}
 
 		function getById(string $idimagen){
@@ -121,6 +127,7 @@
 			$numRows = $stmt->num_rows;
 			return $numRows;
 		}
+
 	}
 
 	class Image{

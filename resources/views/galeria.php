@@ -13,15 +13,15 @@
 		{{/tag.nombre}}
 		<form method="post">
 			{{#can_edit}}
-			<div style="display:flex;flex-direction:row;">
+			<div class="form-options">
 				<select id="form-command" name="command">
 					<option value="">--Elige una opción</option>
-					<option value="borrar">Borrar</option>
-					<option value="etiqueta">Etiqueta</option>
+					<option value="borrar">Borrar Imagen</option>
+					<option value="etiqueta">Añadir Etiqueta</option>
 				</select>
 				<select id="form-tags" name="idetiqueta" class="hidden">
 					{{#tags}}
-					<option value="{{idetiqueta}}">{{nombre}} - {{tipo}}</option>
+					<option value="{{idetiqueta}}">{{tipo}} - {{nombre}} </option>
 					{{/tags}}
 				</select>
 				<button id="form-button" class="hidden">Aplicar</button>
@@ -34,7 +34,7 @@
 					<input type="checkbox" name="seleccion[]" value="{{idimagen}}">
 					<div>
 						<a href="/imagen/{{idusuario}}/{{idimagen}}">
-							<img src="/ver/{{idusuario}}/{{idimagen}}"/>
+							<img src="/ver/{{idusuario}}/{{idimagen}}" alt="{{nombre}}"/>
 						</a>
 					</div>
 					<div
@@ -50,19 +50,5 @@
 			</div>
 		</form>
 	</main>
-	<script>
-		document.getElementById('form-command').addEventListener('change',(e) => {
-			if (e.target.value != '') {
-				document.getElementById('form-button').classList.remove('hidden');
-			} else {
-				document.getElementById('form-button').classList.add('hidden');
-			}
-
-			if (e.target.value == 'etiqueta') {
-				document.getElementById('form-tags').classList.remove('hidden');
-			} else {
-				document.getElementById('form-tags').classList.add('hidden');
-			}
-		});
-	</script>
+	<script type="text/javascript" src="static/js/form.js"></script>
 </article>
