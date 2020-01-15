@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>pinf</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="/static/css/index.css" type="text/css" rel="stylesheet">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
@@ -17,9 +18,12 @@
 			</a>
 		</div>
 		{{/link_return}}
-		<div style="flex-grow: 1;">
+		<div style="display: flex;flex-grow: 1;">
 			<label for="search">Busqueda</label>
-			<input type="text" name="search" id="search" placeholder="Buscar...">
+			<form action="/search">
+				<input type="text" name="search" id="search" placeholder="Buscar...">
+				<button>Buscar</button>
+			</form>
 		</div>
 		<div>
 			{{#connected_user.nombre}}

@@ -105,7 +105,7 @@
 		border-color: pink;
 	}
 
-@media screen (max-width: 40em){
+@media(max-width:600px){
 	*{
 		background-color: red;
 	}			

@@ -91,7 +91,6 @@
 			$arrimages = [];
 			foreach ($images as $image) {
 				$img = $image->toArray();
-				$img['idusuario'] = $user->getIdUsuario();
 				$arrimages[] = $img;
 			}
 
@@ -112,14 +111,17 @@
 			foreach($arrtags as $value){
 				$tgNombre = $value['nombre'];
 				$tgId =$value['idetiqueta'];
-				$tagTipos[$value['tipo']][] = ['nombre'=>$tgNombre, 'idetiqueta'=>$tgId];
-			}	
+				$tagTipos[$value['tipo']]['nombre'] = $value['tipo'];
+				$tagTipos[$value['tipo']]['valores'][] = ['nombre'=>$tgNombre, 'idetiqueta'=>$tgId];
+			}
 
-			foreach(Tag::$tipos as $value){
+			$this->output['tagnube'] = $tagTipos;
+
+			/*foreach(Tag::$tipos as $value){
 				if(array_key_exists($value, $tagTipos)){
 					$this->output[$value]= $tagTipos[$value];
 				}
-			}
+			}*/
 
 			if (_app::isLogged()) {
 				$logged_user = _app::getUser();
@@ -236,9 +238,9 @@
 					$this->output['can_edit'] = true;
 				}
 			}
-				$this->output['domain'] = $_SERVER['SERVER_NAME'];
-				$this->_datos_genericos();
-				$this->_render('imagen');
+			$this->output['domain'] = $_SERVER['SERVER_NAME'];
+			$this->_datos_genericos();
+			$this->_render('imagen');
 		}
 
 		
@@ -327,6 +329,30 @@
 			$this->output['link_return'] = '/welcome';
 			$this->_datos_genericos();
 			return $this->_render('subir');
+		}
+
+		function search(){
+			if (!_app::isLogged()) {
+				$this->_render_common_r('/login');
+			}
+			$user = _app::getUser();
+
+			$ImageTable = new ImageTable();
+			if (!empty($_GET['search'])) {
+				$images = $ImageTable->search($user,$_GET['search']);
+
+				$arrimages = [];
+				foreach ($images as $image) {
+					$img = $image->toArray();
+					//$img['idusuario'] = $user->getIdUsuario();
+					$arrimages[] = $img;
+				}
+
+				$this->output['images'] = $arrimages;
+			}
+
+			$this->_datos_genericos();
+			$this->_render('galeria');
 		}
 
 		function ver($id = '',$img = ''){

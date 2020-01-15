@@ -119,13 +119,31 @@
 		}
 		function countImagesFromUser(User $user): int{
 			$mysqli = $this->conn();
-			$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE `idusuario` = (SELECT `idusuario` FROM `usuario` WHERE `nombre`=? LIMIT 1)');
-			$username = $user->getNombre();
-			$stmt->bind_param("s",$username);
+			$stmt = $mysqli->prepare('SELECT count(*) FROM `imagen` WHERE `idusuario` = ?');
+			$idusuario = $user->getIdUsuario();
+			$stmt->bind_param("i",$idusuario);
 			$stmt->execute();
-			$stmt->store_result();
-			$numRows = $stmt->num_rows;
-			return $numRows;
+			$result = $stmt->get_result();
+			if (($obj = $result->fetch_array(MYSQLI_ASSOC)) !== null) {
+				return intval($obj['count(*)']);
+			}
+			return 0;
+		}
+		function search(User $user,string $search) : array{
+			$idusuario = $user->getIdUsuario();
+			$search = '%'.$search.'%';
+
+			$mysqli = $this->conn();
+			$stmt = $mysqli->prepare('SELECT * FROM `imagen` WHERE idusuario = ? AND nombre LIKE ?');
+			$stmt->bind_param("is", $idusuario, $search);
+			$stmt->execute();
+			$result = $stmt->get_result();
+
+			$images = [];
+			while (($obj = $result->fetch_array(MYSQLI_ASSOC)) !== null) {
+				$images[] = $this->__assign($obj);
+			}
+			return $images;
 		}
 
 	}
@@ -209,7 +227,7 @@
 		{
 		    $this->idUsuario = $idUsuario;
 		    return $this;
-		}	
+		}
 
 		function readMetadata(){
 			// esta funcion solo se puede utilizar una vez que se ha subido la foto
@@ -220,26 +238,27 @@
 			if (exif_read_data($path,'IFD0')) {
 			    $exif_ifd0 = exif_read_data($path,0,true);
 			     
-			    if (isset($exif_ifd0['Make'])) {
-			    	$camMake = $exif_ifd0['Make'];
+			    if (isset($exif_ifd0['IFD0']['Make'])) {
+			    	$camMake = $exif_ifd0['IFD0']['Make'];
 			    } 
 			     
-			    if (isset($exif_ifd0['Model'])) {
-			        $camModel = $exif_ifd0['Model'];
+			    if (isset($exif_ifd0['IFD0']['Model'])) {
+			        $camModel = $exif_ifd0['IFD0']['Model'];
 			    } 
 			     
-			    if (isset($exif_ifd0['DateTime'])) {
-			        $camDate = $exif_ifd0['DateTime'];
+			    if (isset($exif_ifd0['IFD0']['DateTime'])) {
+			        $camDate = $exif_ifd0['IFD0']['DateTime'];
 			    } 
 			}
-			$this->camara = $camMake." ".$camModel;
+			$this->camara = $camMake.' '.$camModel;
 			$this->fecha = $camDate; 
 		}
 	
 		function toArray(){
 			return [
 				'idimagen'=>$this->idImagen,
-				'nombre'=>$this->nombre
+				'nombre'=>$this->nombre,
+				'idusuario'=>$this->idUsuario
 			];
 		}
 	}

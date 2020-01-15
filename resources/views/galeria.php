@@ -49,7 +49,15 @@
 		</form>
 	</main>
 	<aside>
-		<h3>Personas:</h3>
+		{{#tagnube}}
+			<h3>{{nombre}}</h3>
+			{{#valores}}
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+			{{/valores}}
+		{{/tagnube}}
+
+
+		<!--<h3>Personas:</h3>
 		{{#persona}}		
 			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
 		{{/persona}}
@@ -68,7 +76,7 @@
 		<h3>Eventos:</h3>
 		{{#evento}}		
 			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-		{{/evento}}
+		{{/evento}}-->
 
 	</aside>
 	<script type="text/javascript" src="static/js/form.js"></script>
