@@ -114,7 +114,41 @@
 	display:flex;
 	flex-direction:row;
 }
+
+.search{
+display: flex;
+flex-grow: 1;	
+}
 /*button {
 	width:80%;
     margin:9%;
 }*/
+
+
+.connected-user{
+
+}
+header{
+	background-color: grey;
+}
+header div {
+	transform: rotate(-3deg) scaleZ(-1);
+	z-index: 4;
+		background-color:orange;
+}
+a:link{
+	text-decoration:none;
+}
+a:visited{
+	text-decoration: none;
+}
+a:hover{
+	text-decoration: underline;
+}
+a:active{
+	text-decoration: underline;
+}
+.image-form{
+	padding: 20px 10px;
+	border-bottom:1px solid #eee;	
+}

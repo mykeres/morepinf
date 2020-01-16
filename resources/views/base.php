@@ -18,23 +18,24 @@
 			</a>
 		</div>
 		{{/link_return}}
-		<div style="display: flex;flex-grow: 1;">
+		<div class="search">
 			<label for="search">Busqueda</label>
 			<form action="/search">
-				<input type="text" name="search" id="search" placeholder="Buscar...">
-				<button>Buscar</button>
+				<input type="text" name="search" id="search" placeholder="Buscar fotos...">
 			</form>
 		</div>
 		<div>
 			{{#connected_user.nombre}}
-				<span>{{connected_user.nombre}}</span>
+				<span class="connected-user">{{connected_user.nombre}}</span>
 				<a href="/logout">Logout</a>
 			{{/connected_user.nombre}}
 			{{^connected_user.nombre}}
-				<a href="/login">Login</a>
+				<a href="/login" class="login">Login</a>
 			{{/connected_user.nombre}}
 		</div>
 	</header>
 	{{__MAIN__}}
+	<footer>
+	</footer>
 </body>
 </html>

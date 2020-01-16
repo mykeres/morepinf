@@ -17,7 +17,7 @@
 			<img src="/ver/{{user.idusuario}}/{{image.idimagen}}" alt="{{image.nombre}}"/>
 		</div>
 		{{#can_edit}}
-		<div style="padding: 20px 10px;border-bottom:1px solid #eee;">
+		<div class="image-form" >
 			<form method="POST" name="delete-tags">
 				<input type="hidden" name="command" value="borrar">
 				<span id="checkbox-tags">
@@ -30,7 +30,7 @@
 				<button id="delete-tags" disabled="disabled">Borrar</button>
 			</form>
 		</div>
-		<div style="padding: 20px 10px;border-bottom:1px solid #eee;">
+		<div class="image-form" >
 			<form method="post" name="add-tag">
 				<input type="hidden" name="command" value="etiqueta">
 				<div class="form-options">
@@ -49,7 +49,7 @@
 			</form>
 		</div>
 		{{/can_edit}}
-		<div style="padding: 20px 10px;border-bottom:1px solid #eee;">
+		<div class="image-form">
 			<h3>Compartir:</h3>
 			<textarea readonly>http://{{domain}}/imagen/{{user.idusuario}}/{{image.idimagen}}</textarea>
 		</div>

@@ -129,7 +129,7 @@
 					$this->output['can_edit'] = true;
 				}
 			}
-
+			$this->output['link_return'] = '/welcome';	
 			$this->_datos_genericos();
 			$this->_render('galeria');
 		}
@@ -326,7 +326,7 @@
 				return $this->_render_common_r('/subir');
 			}
 
-			$this->output['link_return'] = '/welcome';
+			$this->output['link_return'] = '/galeria/'.$user->getIdUsuario();
 			$this->_datos_genericos();
 			return $this->_render('subir');
 		}

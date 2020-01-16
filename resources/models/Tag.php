@@ -40,7 +40,6 @@
 			$stmt->execute();
 		}
 		function removeTagImage(Tag $tag, Image $image){
-			$this->insert($tag); 
 			$mysqli = $this->conn();
 			$stmt = $mysqli->prepare("DELETE FROM etiqueta_imagen WHERE idetiqueta = ? AND idimagen = ? LIMIT 1");
 			$idetiqueta = $tag->getIdEtiqueta();

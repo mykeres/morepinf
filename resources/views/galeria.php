@@ -48,36 +48,16 @@
 			</div>
 		</form>
 	</main>
-	<aside>
+	<aside class="listadoTags">
+		{{#can_edit}}
+		<h3>Filtrado por Tag</h3>
 		{{#tagnube}}
 			<h3>{{nombre}}</h3>
 			{{#valores}}
 			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
 			{{/valores}}
 		{{/tagnube}}
-
-
-		<!--<h3>Personas:</h3>
-		{{#persona}}		
-			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-		{{/persona}}
-		<h3>Temas:</h3>
-		{{#tema}}		
-			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-		{{/tema}}
-		<h3>Lugares:</h3>
-		{{#lugar}}		
-			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-		{{/lugar}}
-		<h3>Grupos:</h3>
-		{{#grupo}}		
-			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-		{{/grupo}}
-		<h3>Eventos:</h3>
-		{{#evento}}		
-			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-		{{/evento}}-->
-
+		{{/can_edit}}
 	</aside>
 	<script type="text/javascript" src="static/js/form.js"></script>
 </article>
