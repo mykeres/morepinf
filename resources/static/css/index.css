@@ -3,16 +3,35 @@
 		margin:0;
 		padding: 0;
 	}
-	input[type="text"], input[type="password"], textarea{
+	input[type="text"], input[type="password"], input[type="file"],input[type="email"], textarea, select{
 		background: #eeeeee;
-		border-radius: 12px;
 		border: 0;
 		outline: 0;
-		padding: 4px 10px;
+		padding: 8px 18px;
+		border-radius: 4px;
+	}
+	button{
+		background: #7bbb5e;
+		border: 0;
+		padding: 8px 18px;
+		color: white;
+		font-weight: bold;
+		border-radius: 4px;
+		white-space: nowrap;
+	}
+	input[type="text"] + button{
+		position: relative;
+		left: -14px;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
 	}
 	textarea{
 		min-width: 400px;
 		min-height: 60px;
+	}
+	label{
+		display: block;
+		text-align: center;
 	}
 	h1{
 		margin-bottom: 0;
@@ -25,6 +44,24 @@
 	}
 	p{
 		margin-top: 0;
+	}
+
+	.form-linea{
+		display: flex;
+		align-items: center;
+	}
+	.form-linea + .form-linea{
+		padding-top: 6px;
+	}
+	.green.green.green{
+		color: #19b803;
+	}
+
+	label.alineado{
+		min-width: 80px;
+		text-align: right;
+		padding-right: 6px;
+		color: #aaa;
 	}
 
 	.hidden{
@@ -44,13 +81,31 @@
 		align-items: center;
 		padding: 10px;
 		padding-left: 200px;
-		border-bottom: 1px solid #eee;
+		position: fixed;
+		width: 100%;
+		z-index: 10000000;
 	}
 	body > header input{
 		display: inline-block;
 		margin-left: 50px;
 		min-width: 400px;
 		line-height: 22px;
+	}
+	body > header a{
+		color: white;
+		white-space: nowrap;
+	}
+	body > header .user{
+		background: #ef765f;
+		border-radius: 2px;
+		color: white;
+		padding: 8px 14px;
+		white-space: nowrap;
+	}
+	body > header .connected-user{
+		background: #f38b75;
+		border-radius: 2px;
+		padding: 2px 4px;
 	}
 	article{
 		display: flex;
@@ -59,16 +114,21 @@
 	article > aside{
 		width: 200px;
 		border-right: 1px solid #eee;
+		padding-top: 78px;
+		padding-left: 10px;
 	}
-	article > main{
+	article > .main{
 		flex-grow: 1;
 		padding: 20px;
+		padding-top: 78px;
+		max-width: 100%;
+		overflow: hidden;
 	}
 	.app-login{
 		width: 400px;
 		margin: auto;
 		border-radius: 6px;
-		margin-top: 40px;
+		margin-top: 140px;
 		padding: 10px;
 		border: 1px solid #eee;
 		box-shadow: 0 2px rgba(0,0,0,.1);
@@ -76,17 +136,24 @@
 	.app-login input{
 		width: 100%;
 	}
+	.app-login button{
+		margin: auto;
+		display: block;
+		margin-top: 10px;
+		width: 120px;
+	}
 	.image-thumb-container{
-
+		padding-top:20px;
 	}
 	/*1280x720 minimo movil*/
 	.image-thumb{
-		border: solid 8px;
 		border-radius:3px;
 		display: inline-block;
 		max-width: 15vw;
 		padding: 10px;
 		margin-bottom: 5px;
+		box-shadow: 0 1px 2px rgba(0,0,0,.4);
+		border: 1px solid #aaa;
 	}
 	.image-thumb img{
 		max-width: 100%;
@@ -97,8 +164,11 @@
 		overflow: hidden;
 		white-space: nowrap;
 	}
-	div a {
-		font-size: 1vmax;
+	.image-view img{
+		max-width: 100%;
+	}
+	article div a {
+		font-size: 14px;
 	}
 
 	form input[required]:placeholder-shown {
@@ -107,8 +177,35 @@
 
 @media(max-width:600px){
 	*{
-		background-color: red;
-	}			
+		
+	}
+	body > header{
+		padding-left: 0;
+	}
+	body > header .search{
+		width: 20%;
+		padding: 0 4px;
+	}
+	body > header form{
+		display: block;
+		width: 100%;
+	}
+	body > header input{
+		min-width: auto;
+		margin-left: 0;
+		width: 100%;
+	}
+	article > aside{
+		display: none;
+		width: 0;
+	}
+	.image-thumb{
+		max-width: calc(50vw - 22px);
+		padding: 4px;
+	}
+	label{
+		display: none;
+	}
 }
 .form-options{
 	display:flex;
@@ -116,8 +213,8 @@
 }
 
 .search{
-display: flex;
-flex-grow: 1;	
+	display: flex;
+	flex-grow: 1;	
 }
 /*button {
 	width:80%;
@@ -129,12 +226,9 @@ flex-grow: 1;
 
 }
 header{
-	background-color: grey;
+	background-color: #555;
 }
 header div {
-	transform: rotate(-3deg) scaleZ(-1);
-	z-index: 4;
-		background-color:orange;
 }
 a:link{
 	text-decoration:none;
@@ -152,3 +246,9 @@ a:active{
 	padding: 20px 10px;
 	border-bottom:1px solid #eee;	
 }
+.registrarse{
+	display:block;
+	text-align:right;
+	font-size: .7em;
+}
+

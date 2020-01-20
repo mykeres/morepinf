@@ -41,13 +41,11 @@
 			if ($image === null) {
 				return false;
 			}
-
 			$mysqli = $this->conn();
 			$stmt = $mysqli->prepare('DELETE FROM imagen WHERE imagen.idimagen=? LIMIT 1');
 			$stmt->bind_param("s",$idimagen);
 			$stmt->execute();
 			$result = $stmt->get_result();
-
 			$path = 'db/imageUpload/'.$image->getIdUsuario().'/'.$image->getIdImagen();
 			if (file_exists($path)) {
 				unlink($path);
@@ -55,7 +53,31 @@
 
 			return true;
 		}
-		
+		function removeByUsers(array $users){
+			$mysqli = $this->conn();
+			$params = str_repeat('?,',count($users));
+			$params = substr($params,0,-1);
+			$clause = 'DELETE FROM imagen WHERE imagen.idusuario IN ('.$params.')';
+			$bind = str_repeat('i',count($users));
+			//$params = array_merge([$bind],$users);
+			//$call = '$stmt->bind_param('.implode(',',$params).');';
+
+			$stmt = $mysqli->prepare($clause);
+			//call_user_func_array([$stmt,'bind_param'],$params);
+			$stmt->bind_param($bind,...$users);
+			$stmt->execute();
+			$result = $stmt->get_result();
+
+			foreach ($users as $user) {
+				$path = 'db/imageUpload/'.$user;
+				if (file_exists($path)) {
+					shell_exec('rm -r "'.$path.'"');
+				}
+			}
+
+			return true;
+		}
+
 		function getImagesFromUser(User $user, array $params= null):array{
 			if (!isset($params['count'])){
 				$params['count'] = 0;
@@ -253,7 +275,13 @@
 			$this->camara = $camMake.' '.$camModel;
 			$this->fecha = $camDate; 
 		}
-	
+
+		function deleteAllImageFilesByUser(){
+			$mask= 'db/imageUpload/'.$this->getIdUsuario().'/*';
+			array_map('unlink',glob($mask));
+			//TODO
+		}
+
 		function toArray(){
 			return [
 				'idimagen'=>$this->idImagen,

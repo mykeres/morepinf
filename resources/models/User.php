@@ -72,7 +72,18 @@ class UserTable extends DataBase{
         $stmt->execute();
         // comprobacion de existencia        
     }
+	function deleteMultipleById(array $users){
+		$mysqli = $this->conn();
+		$str = implode(",",$users);
+		$query = "DELETE FROM `usuario` WHERE idusuario in (".$str.")";
+		$stmt = $mysqli->query($query);
 
+		$ImageTable = new ImageTable();
+		$ImageTable->removeByUsers($users);
+
+
+		return true;
+	}
     public function userExists(User $user): bool{
         $name = $user->getNombre();
         return boolval($this->getByName($name));
@@ -81,10 +92,18 @@ class UserTable extends DataBase{
     public function userMatches(User $user, string $pass): bool{
         return ($user->getPassword() === sha1($pass));
     }
+    function removeAllImageFilesByUser(User $user){
+			if(!$this->userExists($user)){
+				return;
+			}
+
+			$mask= 'db/imageUpload/'.$idUsuario.'/*';
+			array_map('unlink',glob($mask));
+		}
+    }
+
     
     
-    
-}
 
 class User{
     private $idusuario;
@@ -121,11 +140,16 @@ class User{
     public function setEmail($email){
         $this->email = $email;
     }
+    public function eraseImages(){
+
+    }
 
 	public function toArray(){
 		return [
 			'idusuario'=>$this->idusuario,
-			'nombre'=>$this->nombre
+			'nombre'=>$this->nombre,
+			'email'=>$this->email,
+			'password'=>$this->password
 		];
 	}
 }

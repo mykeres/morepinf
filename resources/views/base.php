@@ -18,19 +18,21 @@
 			</a>
 		</div>
 		{{/link_return}}
+		{{^hide_search}}
 		<div class="search">
-			<label for="search">Busqueda</label>
 			<form action="/search">
-				<input type="text" name="search" id="search" placeholder="Buscar fotos...">
+				<input type="text" name="search" id="search" placeholder="Buscar fotos..." accesskey="b">
 			</form>
 		</div>
-		<div>
+		{{/hide_search}}
+		<div class="user">
 			{{#connected_user.nombre}}
+				<a href="/subir" accesskey="s">💎 Subir</a>
 				<span class="connected-user">{{connected_user.nombre}}</span>
-				<a href="/logout">Logout</a>
+				<a href="/logout" accesskey="o">Logout</a>
 			{{/connected_user.nombre}}
 			{{^connected_user.nombre}}
-				<a href="/login" class="login">Login</a>
+				<a href="/login" class="login" accesskey="l">Login</a>
 			{{/connected_user.nombre}}
 		</div>
 	</header>

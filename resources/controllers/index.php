@@ -129,7 +129,7 @@
 					$this->output['can_edit'] = true;
 				}
 			}
-			$this->output['link_return'] = '/welcome';	
+			$this->output['link_return'] = '/welcome';
 			$this->_datos_genericos();
 			$this->_render('galeria');
 		}
@@ -168,6 +168,7 @@
 				$nameTags[]= $tagArray;
 			}
 			//var_dump($nameTags);
+			$this->output['tiene_tags'] = !empty($nameTags);
 			$this->output['tags'] = $nameTags;
 
 			if (!empty($_POST['command'])) {
@@ -243,9 +244,6 @@
 			$this->_render('imagen');
 		}
 
-		
-
-
 		function registro(){
 			if(!empty($_POST)){
 				$nombre = $_POST['nombre'];
@@ -253,6 +251,7 @@
 				$currentUser = $userTable->getByName($nombre);
 				if (!empty($currentUser)) {
 					$this->output['nombreInvalido']=$nombre;
+					$this->output['hide_search'] = true;
 					return $this->_render('registro');
 				}
 				$password = $_POST['password'];
@@ -265,6 +264,8 @@
 				$userTable->insert($newUser);
 				$this->_render_common_r('/welcome');
 			}
+
+			$this->output['hide_search'] = true;
 			$this->_render('registro');
 		}
 
@@ -282,10 +283,15 @@
 				}
 				if ($userTable->userMatches($currentUser, $password)){
 					setcookie('user',$nombre,time() + 360000,'/');
+					if ($nombre==='admin'){
+						return $this->_render_common_r('/admin/usuarios');
+					}
 					return $this->_render_common_r('/welcome');
 				}
 				return $this->_render('login.invalid');
 			}
+
+			$this->output['hide_search'] = true;
 			$this->_render('login');
 		}
 
@@ -315,6 +321,11 @@
 				if (empty($errors)) {
 					move_uploaded_file($fileTmp, $file);
 					//subir a bbdd.
+					$nombre = $_POST['nombre'];
+					$nombre = trim($nombre);
+					if (!empty($nombre)) {
+						$fileName=$nombre;
+					}
 					$imageTable = new ImageTable();
 					$image = new Image();
 					$image->setIdImagen($nameHash);
@@ -323,10 +334,15 @@
 					$image->setIdusuario($user->getIdUsuario());
 					$imageTable->insert($image);
 				}
-				return $this->_render_common_r('/subir');
+				return $this->_render_common_r('/subir?correcto=1');
 			}
 
-			$this->output['link_return'] = '/galeria/'.$user->getIdUsuario();
+			if (!empty($_GET['correcto'])) {
+				$this->output['imagen_subida'] = true;
+				$this->output['link_galeria'] = '/galeria/'.$user->getIdUsuario();
+			}
+
+			$this->output['link_return'] = '/welcome';
 			$this->_datos_genericos();
 			return $this->_render('subir');
 		}

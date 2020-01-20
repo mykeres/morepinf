@@ -1,6 +1,16 @@
 <article>
-
-	<main>
+	<aside class="listadoTags">
+		{{#can_edit}}
+		<h3>Filtrado por Tag</h3>
+		{{#tagnube}}
+			<h3>{{nombre}}</h3>
+			{{#valores}}
+			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
+			{{/valores}}
+		{{/tagnube}}
+		{{/can_edit}}
+	</aside>
+	<div class="main">
 		{{#tag.nombre}}
 		<h1>Tag <span>{{tag.nombre}}</span></h1>
 		<p>Imágenes etiquetadas</p>
@@ -29,7 +39,7 @@
 			<div class="image-thumb-container">
 				{{#images}}
 				<div class="image-thumb">
-					<input type="checkbox" name="seleccion[]" value="{{idimagen}}">
+					<input type="checkbox"  name="seleccion[]" value="{{idimagen}}">
 					<div>
 						<a href="/imagen/{{idusuario}}/{{idimagen}}">
 							<img src="/ver/{{idusuario}}/{{idimagen}}" alt="{{nombre}}"/>
@@ -47,17 +57,6 @@
 				{{/images}}
 			</div>
 		</form>
-	</main>
-	<aside class="listadoTags">
-		{{#can_edit}}
-		<h3>Filtrado por Tag</h3>
-		{{#tagnube}}
-			<h3>{{nombre}}</h3>
-			{{#valores}}
-			<a href="/tag/{{idetiqueta}}">{{nombre}}</a>
-			{{/valores}}
-		{{/tagnube}}
-		{{/can_edit}}
-	</aside>
-	<script type="text/javascript" src="static/js/form.js"></script>
+	</div >
+	<script  src="static/js/form.js"></script>
 </article>

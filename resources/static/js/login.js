@@ -1,0 +1,1 @@
+document.querySelector(".user").style.display = 'none'
