@@ -1,2 +1,1 @@
-# morepinf
-pinf
+# pinf
